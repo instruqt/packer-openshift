@@ -1,0 +1,41 @@
+{
+  "variables": {
+     "pwd": "{{ env `PWD` }}/../centos"
+  },
+    "builders":
+    [
+
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `project_id`}}",
+      "source_image_family": "centos-7",
+      "disk_size": "20",
+      "zone": "europe-west1-b",
+      "ssh_username" : "centos",
+      "image_name": "openshift-3-9",
+      "image_labels": {
+        "track": "openshift",
+        "created": "{{ timestamp }}"
+      }
+    }
+    ],
+
+    "provisioners": [
+        {
+            "type": "file",
+            "destination": "/tmp",
+            "source": "./files"
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo 'centos' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "scripts": [
+                "scripts/configure.sh",
+                "scripts/docker.sh",
+                "scripts/openshift.sh",
+                "scripts/pull.sh",
+                "scripts/zerodisk.sh"
+            ]
+        }
+    ]
+}
